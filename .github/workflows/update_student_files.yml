@@ -1,0 +1,31 @@
+# Mettre à jour l'argument paths à la ligne 10 avec le nom des fichiers qui active le workflow lors d'une modification.
+# Mettre à jour l'argument "--files_to_update" à la ligne 30 avec le nom des fichiers à mettre à jour (séparé par un espace)
+
+name: Update student files
+
+on:
+  workflow_dispatch:
+  push:
+    paths: 
+      - trigger_file_1
+      - trigger_file_2
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Update student files
+        run: |
+          source settings/variables.txt
+          
+          python3 -m pip install -q setuptools
+          python3 -m pip install -q git+"$classroom_tools_url"
+          
+          python3 -m classroom_tools.student_repositories.sync_with_template_repository \
+            --template_repo_fullname="$GITHUB_REPOSITORY" \
+            --token="${{ secrets.REPO_WORKFLOW_PAT }}" \
+            --org_name="$org_name" \
+            --repo_filter="$repo_filter" \
+            --files_to_update file_to_update_1 file_to_update_2
